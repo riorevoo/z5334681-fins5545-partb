@@ -1,0 +1,258 @@
+[
+  {
+    "term": "hawkish",
+    "phrase": false,
+    "ai_score": -2.0,
+    "ai_rationale": "Signals rate hikes; negative for risk assets in a headline context",
+    "self_score": -1.5,
+    "notes": null
+  },
+  {
+    "term": "dovish",
+    "phrase": false,
+    "ai_score": 2.0,
+    "ai_rationale": "Signals rate cuts/easing; positive for risk assets",
+    "self_score": 1.5,
+    "notes": null
+  },
+  {
+    "term": "surge",
+    "phrase": false,
+    "ai_score": 2.8,
+    "ai_rationale": "Strong upward price/market move; absent from base VADER despite being common in headlines",
+    "self_score": 2.5,
+    "notes": null
+  },
+  {
+    "term": "soar",
+    "phrase": false,
+    "ai_score": 2.8,
+    "ai_rationale": "Strong upward price/market move; absent from base VADER",
+    "self_score": 3.0,
+    "notes": null
+  },
+  {
+    "term": "rally",
+    "phrase": false,
+    "ai_score": 2.2,
+    "ai_rationale": "Upward market move; absent from base VADER",
+    "self_score": 2.8,
+    "notes": null
+  },
+  {
+    "term": "plunge",
+    "phrase": false,
+    "ai_score": -2.8,
+    "ai_rationale": "Strong downward price/market move; absent from base VADER",
+    "self_score": -3.2,
+    "notes": null
+  },
+  {
+    "term": "tumble",
+    "phrase": false,
+    "ai_score": -2.5,
+    "ai_rationale": "Downward price/market move; absent from base VADER",
+    "self_score": -2.8,
+    "notes": null
+  },
+  {
+    "term": "slump",
+    "phrase": false,
+    "ai_score": -2.2,
+    "ai_rationale": "Downward price/market move; absent from base VADER",
+    "self_score": -2.7,
+    "notes": null
+  },
+  {
+    "term": "volatile",
+    "phrase": false,
+    "ai_score": -1.0,
+    "ai_rationale": "Uncertainty framing; mildly negative in headline context",
+    "self_score": -1.8,
+    "notes": null
+  },
+  {
+    "term": "buyback",
+    "phrase": false,
+    "ai_score": 1.8,
+    "ai_rationale": "Shareholder-friendly capital return",
+    "self_score": 2.2,
+    "notes": null
+  },
+  {
+    "term": "layoffs",
+    "phrase": false,
+    "ai_score": -2.2,
+    "ai_rationale": "Job cuts; clearly negative",
+    "self_score": -2.5,
+    "notes": null
+  },
+  {
+    "term": "downgrade",
+    "phrase": false,
+    "ai_score": -2.5,
+    "ai_rationale": "Analyst/rating downgrade",
+    "self_score": -2.8,
+    "notes": null
+  },
+  {
+    "term": "upgrade",
+    "phrase": false,
+    "ai_score": 2.2,
+    "ai_rationale": "Analyst/rating upgrade",
+    "self_score": 2.8,
+    "notes": null
+  },
+  {
+    "term": "bankruptcy",
+    "phrase": false,
+    "ai_score": -3.8,
+    "ai_rationale": "Severe negative event",
+    "self_score": -3.8,
+    "notes": null
+  },
+  {
+    "term": "antitrust",
+    "phrase": false,
+    "ai_score": -1.2,
+    "ai_rationale": "Regulatory risk framing",
+    "self_score": -1.2,
+    "notes": null
+  },
+  {
+    "term": "writedown",
+    "phrase": false,
+    "ai_score": -2.2,
+    "ai_rationale": "Asset impairment/write-off",
+    "self_score": -2.7,
+    "notes": null
+  },
+  {
+    "term": "debt",
+    "phrase": false,
+    "ai_score": 0.0,
+    "ai_rationale": "Loughran-McDonald false negative: base VADER scores -1.5, but 'debt' is routine in ordinary finance disclosure (e.g. debt financing, debt maturity) and is not inherently bad news",
+    "self_score": -1.5,
+    "notes": null
+  },
+  {
+    "term": "liability",
+    "phrase": false,
+    "ai_score": 0.0,
+    "ai_rationale": "Loughran-McDonald false negative: base VADER scores -0.8, but 'liability' is a routine balance-sheet term, not inherently bad news",
+    "self_score": -1.7,
+    "notes": null
+  },
+  {
+    "term": "risk",
+    "phrase": false,
+    "ai_score": -0.3,
+    "ai_rationale": "Loughran-McDonald-style false negative: base VADER scores -1.1, but 'risk' appears constantly in neutral/routine finance phrasing (risk management, risk-adjusted return) - toned down rather than zeroed since genuine risk-warning headlines should still read mildly negative",
+    "self_score": -1.6,
+    "notes": null
+  },
+  {
+    "term": "aggressive",
+    "phrase": false,
+    "ai_score": 0.3,
+    "ai_rationale": "Loughran-McDonald-style false negative: base VADER scores -0.6, but 'aggressive' is often positive in finance headlines (aggressive growth, aggressive expansion)",
+    "self_score": -0.5,
+    "notes": null
+  },
+  {
+    "term": "going concern",
+    "phrase": true,
+    "ai_score": -3.8,
+    "ai_rationale": "Severe accounting/audit warning signaling doubt the company can continue operating",
+    "self_score": -1.0,
+    "notes": null
+  },
+  {
+    "term": "guidance cut",
+    "phrase": true,
+    "ai_score": -2.8,
+    "ai_rationale": "Company lowers its own forward guidance",
+    "self_score": -3.3,
+    "notes": null
+  },
+  {
+    "term": "earnings beat",
+    "phrase": true,
+    "ai_score": 2.8,
+    "ai_rationale": "Company exceeds analyst earnings expectations",
+    "self_score": 3.5,
+    "notes": null
+  },
+  {
+    "term": "misses estimates",
+    "phrase": true,
+    "ai_score": -2.8,
+    "ai_rationale": "Company falls short of analyst expectations",
+    "self_score": -3.0,
+    "notes": null
+  },
+  {
+    "term": "dividend hike",
+    "phrase": true,
+    "ai_score": 1.8,
+    "ai_rationale": "Increased shareholder payout",
+    "self_score": 3.2,
+    "notes": null
+  },
+  {
+    "term": "dividend cut",
+    "phrase": true,
+    "ai_score": -2.8,
+    "ai_rationale": "Reduced shareholder payout, often signals distress",
+    "self_score": -3.4,
+    "notes": null
+  },
+  {
+    "term": "record revenue",
+    "phrase": true,
+    "ai_score": 2.8,
+    "ai_rationale": "Best-ever top-line result",
+    "self_score": 3.3,
+    "notes": null
+  },
+  {
+    "term": "profit warning",
+    "phrase": true,
+    "ai_score": -2.8,
+    "ai_rationale": "Company pre-announces a profit shortfall",
+    "self_score": -3.5,
+    "notes": null
+  },
+  {
+    "term": "regulatory approval",
+    "phrase": true,
+    "ai_score": 1.8,
+    "ai_rationale": "Clears a regulatory hurdle (e.g. drug/merger approval)",
+    "self_score": 2.5,
+    "notes": null
+  },
+  {
+    "term": "class action",
+    "phrase": true,
+    "ai_score": -2.5,
+    "ai_rationale": "Shareholder/consumer lawsuit exposure",
+    "self_score": -2.4,
+    "notes": null
+  },
+  {
+    "term": "short seller",
+    "phrase": true,
+    "ai_score": -1.8,
+    "ai_rationale": "Signals a bearish market view is being expressed against the stock",
+    "self_score": -1.5,
+    "notes": null
+  },
+  {
+    "term": "credit downgrade",
+    "phrase": true,
+    "ai_score": -2.8,
+    "ai_rationale": "Credit rating agency downgrade; more severe/specific than the single word 'downgrade'",
+    "self_score": -3.5,
+    "notes": null
+  }
+]
