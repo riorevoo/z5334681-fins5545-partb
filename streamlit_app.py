@@ -28,9 +28,11 @@ TAB_DIR = ROOT / "results" / "tables"
 
 CAT = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"]
 
-st.set_page_config(page_title="Systematic Funds", layout="wide")
-st.title("Systematic Multi-Asset Funds")
-st.caption("Compare funds, open a fact sheet, build an allocation, and read the sentiment analytics.")
+st.set_page_config(page_title="Folio DiversInator", layout="wide", page_icon="📊")
+st.title("Folio DiversInator")
+st.caption("Built for a self-directed investor comparing systematic equity, crypto, and combined "
+           "strategies. Compare funds, open a fact sheet, build an allocation, and read the "
+           "sentiment analytics behind the equity funds.")
 
 
 def _style(ax):
@@ -43,6 +45,16 @@ def _style(ax):
 @st.cache_data(ttl=86_400, show_spinner="Loading data...")
 def _equities():
     return data_access.load_equity_prices()
+
+
+@st.cache_data(ttl=86_400, show_spinner="Loading data...")
+def _crypto():
+    return data_access.load_crypto_prices()
+
+
+@st.cache_data(ttl=86_400, show_spinner="Loading data...")
+def _news():
+    return data_access.load_news_headlines()
 
 
 @st.cache_data(ttl=86_400, show_spinner=False)
@@ -223,7 +235,34 @@ with tab_sentiment:
 
 # ----------------------------------------------------------------- Data ----
 with tab_data:
+    st.caption("Previews of the three source datasets behind the funds and the sentiment index. "
+               "Loaded once from the hosted data bundle and cached - the app never re-downloads "
+               "or recomputes on each view.")
+
     eq = _equities()
-    st.write(f"Equity prices: {eq.shape[0]:,} rows, {eq['ticker'].nunique()} tickers, "
-             f"{eq['date'].min().date()} to {eq['date'].max().date()}")
-    st.dataframe(eq.head(20), width="stretch")
+    st.subheader("Equity prices")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Rows", f"{eq.shape[0]:,}")
+    c2.metric("Tickers / sectors", f"{eq['ticker'].nunique()} / {eq['sector'].nunique()}")
+    c3.metric("Date range", f"{eq['date'].min().date()} – {eq['date'].max().date()}")
+    st.dataframe(eq.head(20), width="stretch", hide_index=True)
+
+    crypto = _crypto()
+    st.subheader("Crypto prices")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Rows", f"{crypto.shape[0]:,}")
+    c2.metric("Coins", f"{crypto['ticker'].nunique()}")
+    c3.metric("Date range", f"{crypto['date'].min().date()} – {crypto['date'].max().date()}")
+    st.caption("Trades 7 days/week, price-only (no sector) - see the report for why crypto and "
+               "equity returns are computed on their own calendars before merging.")
+    st.dataframe(crypto.head(20), width="stretch", hide_index=True)
+
+    news = _news()
+    st.subheader("News headlines")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Rows", f"{news.shape[0]:,}")
+    c2.metric("Tickers covered", f"{news['ticker'].nunique()}")
+    c3.metric("Date range", f"{news['date'].min().date()} – {news['date'].max().date()}")
+    st.caption("Equity-only - this is the text the sentiment model in the Sentiment tab scores. "
+               "Deduplicated on (ticker, date, title) upstream of this view.")
+    st.dataframe(news.head(20), width="stretch", hide_index=True)
