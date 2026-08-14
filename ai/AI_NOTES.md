@@ -1,7 +1,7 @@
 # AI notes
 
 Claude Code was used for the Part B implementation across Stations 3 and 4.
-Detailed logs are in `log_01_build_order.md` through `log_05_check_handin.md`.
+Detailed logs are in `log_01_build_order.md` through `log_08_app_watermark.md`.
 Logging was deliberately selective. An entry was kept only where something
 material happened, such as a scope decision, a caught bug, or a result that
 required careful interpretation. Routine implementation steps, such as
@@ -42,3 +42,22 @@ was not treated as evidence that the sentiment signal works in general
 (`log_03`). The full sweep across all equity funds and lexicon variants, in
 `results/tables/fusion_comparison.csv`, is what the report draws on,
 including the case where the max-Sharpe fund's tilt made performance worse.
+
+The finance-lexicon's `self_score` ratings were done personally rather than
+by the assistant, with the AI's own `ai_score` values hidden while rating so
+the second rater stayed independent instead of anchored to the assistant's
+numbers (`log_06`). A later adversarial audit, explicitly scoped to find
+errors rather than improve the results, caught a real bug: the sentiment
+tilt in `src/fusion.py` could push a single asset's weight past the 30% cap
+the base optimiser enforces, in one case from 29.4% to 47.1%. Fixing it
+required a second pass, since the first cap-and-renormalise implementation
+still let one weight slip through on a later rebalance date. Once correctly
+capped everywhere, the fusion result got worse, not better, disproving the
+audit's own working hypothesis that the cap breach explained the
+deterioration (`log_07`).
+
+`log_08` is a different kind of entry - a cosmetic request (a grey page
+background with a light money-emoji watermark) logged at the student's
+explicit request rather than because it met the "material decision" bar
+above. It is kept for completeness of the prompt record, not as evidence of
+a methodological decision.
