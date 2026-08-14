@@ -12,7 +12,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from src import data_access, etl, features, fusion, portfolios, sentiment  # noqa: E402
+from src import data_access, etl, features, fusion, portfolios, robustness, sentiment  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "results" / "data"
@@ -118,6 +118,32 @@ def run_fusion(fund_results, wide_eq, sent):
     print(f"[fusion] equity_min_variance: base Sharpe {base_sharpe:.2f} "
           f"-> extended_tilt Sharpe {ext_sharpe:.2f}")
     return fusion_df, fusion_outputs
+
+
+def run_robustness(fund_results, wide_eq, sent):
+    """Two checks the fusion comparison alone can't answer: does lagged
+    sentiment actually predict future returns, and does the real
+    ticker-level sentiment mapping beat a randomised placebo. See
+    src/robustness.py."""
+    eq = etl.load_clean_equities()
+    daily_ret_long = features.daily_returns(eq)
+    pred_power = robustness.predictive_power(sent["tsi_ext"], daily_ret_long)
+    print("[robustness] predictive power:\n" + pred_power.to_string(index=False))
+
+    equity_funds = {n: r for n, r in fund_results.items() if r["family"] == "equity"}
+    placebo_rows = []
+    tilt_corr_rows = []
+    for name, r in equity_funds.items():
+        placebo = robustness.placebo_test(r["weights"], sent["tsi_ext"], wide_eq)
+        placebo_rows.append({"fund": name, **placebo})
+        print(f"[robustness] {name} placebo: real Sharpe {placebo['real_sharpe']:.3f}, "
+              f"shuffle mean {placebo['shuffle_mean']:.3f} +/- {placebo['shuffle_std']:.3f}, "
+              f"real at {placebo['percentile']:.0f}th percentile")
+
+        tilt_corr = robustness.weight_tilt_correlation(r["weights"], sent["tsi_ext"])
+        tilt_corr_rows.append({"fund": name, **tilt_corr})
+
+    return pred_power, pd.DataFrame(placebo_rows), pd.DataFrame(tilt_corr_rows)
 
 
 def plot_growth_of_1(fund_results):
@@ -237,6 +263,31 @@ def plot_fusion_before_after(fusion_df):
     plt.close(fig)
 
 
+def plot_sharpe_sensitivity(fusion_df):
+    """Sharpe ratio vs tilt strength k in {0, 0.25, 0.5, 1.0} per equity fund
+    (extended lexicon) - what "Figure 7" in the report actually names, as
+    opposed to the base/vanilla/extended-at-fixed-k comparison in
+    plot_fusion_before_after."""
+    equity_funds = ["equity_min_variance", "equity_max_sharpe", "equity_equal_weight"]
+    fig, ax = plt.subplots(figsize=(9, 5))
+    for i, f in enumerate(equity_funds):
+        base = fusion_df.loc[(fusion_df["fund"] == f) & (fusion_df["variant"] == "base"), "sharpe"].iloc[0]
+        ks = (fusion_df.loc[(fusion_df["fund"] == f) & (fusion_df["variant"] == "extended_tilt_ksens")]
+              .sort_values("k"))
+        xs = [0.0] + ks["k"].tolist()
+        ys = [base] + ks["sharpe"].tolist()
+        ax.plot(xs, ys, color=CAT[i], linewidth=2, marker="o",
+                label=f.replace("equity_", "").replace("_", " "))
+    _style(ax)
+    ax.set_xlabel("Sentiment tilt strength (k)")
+    ax.set_ylabel("Sharpe ratio (rf=0)")
+    ax.set_title("Sharpe ratio sensitivity to sentiment-tilt strength - equity funds (extended lexicon)")
+    ax.legend(frameon=False)
+    fig.tight_layout()
+    fig.savefig(FIG_DIR / "sharpe_sensitivity.png", dpi=150)
+    plt.close(fig)
+
+
 def plot_neutral_rate(neutral_rates):
     fig, ax = plt.subplots(figsize=(6.5, 4))
     labels = ["Vanilla VADER", "Extended lexicon"]
@@ -284,6 +335,13 @@ def save_outputs(fund_results, sent, fusion_df):
     return fund_returns, fund_weights, performance_metrics
 
 
+def save_robustness_outputs(pred_power, placebo_df, tilt_corr_df):
+    TAB_DIR.mkdir(parents=True, exist_ok=True)
+    pred_power.to_csv(TAB_DIR / "predictive_power.csv", index=False)
+    placebo_df.to_csv(TAB_DIR / "placebo_test.csv", index=False)
+    tilt_corr_df.to_csv(TAB_DIR / "weight_tilt_correlation.csv", index=False)
+
+
 def main():
     print("[run_part_b] loading + cleaning data...")
     wide_eq, wide_cr, combined = build_return_matrices()
@@ -297,8 +355,12 @@ def main():
     print("[run_part_b] applying the sentiment fusion...")
     fusion_df, fusion_outputs = run_fusion(fund_results, wide_eq, sent)
 
+    print("[run_part_b] running sentiment robustness checks (predictive power, placebo test)...")
+    pred_power, placebo_df, tilt_corr_df = run_robustness(fund_results, wide_eq, sent)
+
     print("[run_part_b] saving results/ data, tables, and figures...")
     fund_returns, fund_weights, performance_metrics = save_outputs(fund_results, sent, fusion_df)
+    save_robustness_outputs(pred_power, placebo_df, tilt_corr_df)
 
     plot_growth_of_1(fund_results)
     plot_drawdown(fund_results)
@@ -306,6 +368,7 @@ def main():
     plot_sharpe_barplot(performance_metrics)
     plot_sentiment_index(sent["sector_ext"])
     plot_fusion_before_after(fusion_df)
+    plot_sharpe_sensitivity(fusion_df)
     plot_neutral_rate(sent["neutral_rates"])
 
     print("[run_part_b] done.")

@@ -69,6 +69,21 @@ def _cap_and_renormalise(w: pd.Series, cap: float = MAX_WEIGHT, tol: float = 1e-
     return w
 
 
+def lagged_zscore(wide_sentiment: pd.DataFrame, tickers: list, d) -> pd.Series:
+    """The cross-sectional, lagged sentiment z-score `apply_sentiment` tilts
+    by: the most recent trading day strictly before `d`, z-scored across
+    `tickers`. Exposed so src/robustness.py can correlate this exact signal
+    against baseline weights without re-deriving (and risking drift from)
+    the tilt logic below."""
+    prior_dates = wide_sentiment.index[wide_sentiment.index < d]
+    assert len(prior_dates) > 0, f"no sentiment history available before {d}"
+    prev_day = prior_dates[-1]
+    assert prev_day < d  # the signal used at a rebalance is dated strictly before it
+
+    s = wide_sentiment.loc[prev_day, tickers]
+    return (s - s.mean()) / s.std() if s.std() > 1e-12 else pd.Series(0.0, index=tickers)
+
+
 def apply_sentiment(weights: pd.DataFrame, sentiment: pd.DataFrame, k: float = TILT_INTENSITY) -> pd.DataFrame:
     """`weights`: rebalance-date x ticker target weights from an equity fund's
     oos_backtest(). `sentiment`: ticker-day sentiment from
@@ -86,14 +101,7 @@ def apply_sentiment(weights: pd.DataFrame, sentiment: pd.DataFrame, k: float = T
 
     tilted_rows = {}
     for d in weights.index:
-        prior_dates = wide.index[wide.index < d]
-        assert len(prior_dates) > 0, f"no sentiment history available before {d}"
-        prev_day = prior_dates[-1]
-        assert prev_day < d  # the signal used at a rebalance is dated strictly before it
-
-        s = wide.loc[prev_day, tickers]
-        z = (s - s.mean()) / s.std() if s.std() > 1e-12 else pd.Series(0.0, index=tickers)
-
+        z = lagged_zscore(wide, tickers, d)
         base = weights.loc[d, tickers]
         tilted = (base * (1 + k * z)).clip(lower=0)
         tilted = tilted / tilted.sum()
