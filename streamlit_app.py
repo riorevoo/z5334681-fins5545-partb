@@ -13,6 +13,7 @@ Deploy:        push this folder to a public GitHub repo, then connect it on
 """
 import sys
 import pathlib
+import urllib.parse
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
@@ -28,7 +29,36 @@ TAB_DIR = ROOT / "results" / "tables"
 
 CAT = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"]
 
+# A light, tiled money-emoji watermark on a grey page background - built as an
+# inline SVG data URI so it needs no separate asset file.
+_WATERMARK_SVG = (
+    "<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'>"
+    "<text x='8' y='45' font-size='30' opacity='0.12' "
+    "transform='rotate(-15 8 45)'>\U0001F4B5</text>"
+    "<text x='108' y='28' font-size='22' opacity='0.10' "
+    "transform='rotate(10 108 28)'>\U0001F4B5</text>"
+    "<text x='68' y='140' font-size='26' opacity='0.11' "
+    "transform='rotate(-8 68 140)'>\U0001F4B5</text>"
+    "</svg>"
+)
+_WATERMARK_URI = "data:image/svg+xml," + urllib.parse.quote(_WATERMARK_SVG)
+
 st.set_page_config(page_title="Folio DiversInator", layout="wide", page_icon="📊")
+st.markdown(
+    f"""
+    <style>
+    [data-testid="stAppViewContainer"] {{
+        background-color: #e4e3e0;
+        background-image: url("{_WATERMARK_URI}");
+        background-repeat: repeat;
+    }}
+    [data-testid="stHeader"] {{
+        background-color: rgba(0, 0, 0, 0);
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 st.title("Folio DiversInator")
 st.caption("Built for a self-directed investor comparing systematic equity, crypto, and combined "
            "strategies. Compare funds, open a fact sheet, build an allocation, and read the "
